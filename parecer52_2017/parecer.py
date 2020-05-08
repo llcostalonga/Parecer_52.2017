@@ -6,6 +6,7 @@ from parecer52_2017.portaldocente.portal_docente import PortalDocente
 from parecer52_2017.common.shared_code import Alerta
 from parecer52_2017.common.shared_code import formataPrint
 from parecer52_2017.producaolattes.producao_intelectual import ProducaoIntelectual
+
 from docxtpl import DocxTemplate
 from datetime import date, timedelta,datetime
 

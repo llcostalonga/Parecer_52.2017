@@ -1,0 +1,10 @@
+Required external modules:
+  1) pip install yagmail
+  2) pip install PyPDF2
+  3) pip install docxtpl
+
+PythonAnywhere:
+
+   1) Add the following line (firs line) on mail_bot.py
+      #!/home/llcostalonga/.virtualenvs/myvirtualenv/bin/python
+   2) A pasta docs e resources devem fora do pacote, no mesmo nível do e-mail_bot.py

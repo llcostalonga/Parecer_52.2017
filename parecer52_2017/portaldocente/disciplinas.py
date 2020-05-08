@@ -26,7 +26,7 @@ class Disciplinas:
     filtro_estagio_indireta = ["DCE11948 - Estágio Supervisionado",  # C. Comp DCE11948 - Estágio Supervisionado
                                "DCE08169 - Estágio Supervisionado"]  # Eng. Comp
 
-    def __init__(self, texto_relatorio_progressao, filtro_periodo, nivel_ensino:NivelEnsino = NivelEnsino.GRADUACAO):
+    def __init__(self, texto_relatorio_progressao, filtro_periodo, nivel_ensino:NivelEnsino = NivelEnsino.GRADUACAO, remove_duplicatas = True):
         # A ordem das chamadas das funções ´ relevante. Não mudar sem a devida verificação.
         self.nivel_ensino = nivel_ensino
         self.filtro_periodo = filtro_periodo
@@ -36,17 +36,17 @@ class Disciplinas:
             self.lista_disciplinas = self.__busca_disciplinas_posgrad()
         else:
             self.page_content = stringInBetween(("Turmas de Graduação", "Turmas de Pós-Graduação"),texto_relatorio_progressao)
-            self.lista_disciplinas = self.__busca_disciplinas_grad()
+            self.lista_disciplinas = self.__busca_disciplinas_grad(remove_duplicatas)
 
         self.dic_encargo_didatico = self.__contagem_encargo_didatico()
         self.pontos_semestre = self.__calcula_pontuacao()
         self.pontos = self.__soma_pontos_semestres()
 
 
-    def __busca_disciplinas_grad(self):
+    def __busca_disciplinas_grad(self, remove_duplicatas = True):
         # Extraindo do texto os dados sobre as disciplinas
         disciplinas = re.findall(r'Disciplina:(.*?)Vagas ocupadas:', self.page_content)
-        set_disciplinas = set()
+        lista_disciplinas = list()
 
         # somatório disciplinas de estágio
         sum_estagio_indireto = 0
@@ -54,6 +54,8 @@ class Disciplinas:
 
         for disciplina in disciplinas:
             nome_disciplina = re.search(r'(.*?)Código', disciplina).group(1)
+            nome_disciplina= nome_disciplina.upper()
+
             periodo = re.search(r'Período:(.*?)Curso', disciplina).group(1)
 
             if (nome_disciplina in self.filtro_disciplina):  # remove as disciplinas de TCC (Art4,3)
@@ -100,13 +102,33 @@ class Disciplinas:
                 Alerta.addAlerta(
                     "INFORMAÇÃO NECESSÁRIA: " + nome_disciplina + "(" + periodo + "): possívelmente pontuada erroneamente como orientação direta.")
 
-            tupletDisciplina = (periodo, nome_disciplina.upper(), encargo_didatico)
-            set_disciplinas.add(tupletDisciplina)
 
-        lista_disciplinas = list(set_disciplinas)
+            retorno_busca = [(x, y, z) for x, y, z in lista_disciplinas if ((x == periodo) and (y == nome_disciplina))]
+
+            if(len(retorno_busca) > 0):
+                if (remove_duplicatas):
+                    Alerta.addAlerta(
+                        "Atenção: a disciplina " + nome_disciplina + " aparece  duplicada  no semestre " + periodo +
+                        "\n      e NÃO FOI computada (Obs. 4 Anexo I). Solicitar a chefia a documentação comprobatória de que"
+                        "\n      a disciplina foi ministrada em turmas com horários diferentes e, se comprovado, SOMAR "
+                        "n      " + str(encargo_didatico) + " de encargo didático no semestre." )
+                    continue
+                else:
+                    Alerta.addAlerta(
+                        "Atenção: a disciplina " + nome_disciplina + " aparece  duplicada  no semestre " + periodo +
+                        "\n      e mas FOI computada (Obs. 4 Anexo I). Solicitar a chefia documentação que realmente comprove"
+                        "\n      que a disciplina foi ministrada em turmas com horários diferentes e, se for o caso, REMOVER "
+                        "\n      " + str(encargo_didatico) + " de encargo didático no semestre." )
+
+
+            tupletDisciplina = (periodo, nome_disciplina, encargo_didatico)
+            lista_disciplinas.append(tupletDisciplina)
+
         lista_disciplinas.sort(key=lambda tup: tup[0])  # sorts in place
 
         return lista_disciplinas
+
+
 
     def __busca_disciplinas_posgrad(self):
         # Extraindo do texto os dados sobre as disciplinas

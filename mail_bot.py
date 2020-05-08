@@ -46,18 +46,24 @@ def run_bot():
             email_msg = email.message_from_bytes(email_msg, policy=policy.SMTP)
             return_email = str(email_msg['Return-Path'])[1:-1]
 
+            print("Processando email de  " + return_email)
+
             attachments = get_attachments(email_msg)
 
             if (len(attachments) > 0 and check_attachments(attachments)):
                 parecer = Parecer.run()
                 try:
+                    print("    anexos de acordo com o esperado")
                     reply_email(return_email,email_msg, parecer)
                     logger.info( "Respondido: " + str(email_msg['From']) + " anexos: " + str(attachments))
                     delete_files()
+                    print("    e-mail respondido com o parecer")
                 except:
+                    print("    falha ao tentar responder o e-mail ")
                     logger.info( "Falha da resposta: " + str(email_msg['From']) + " anexos: " + str(attachments))
             else:
                 send_instruction_email(return_email)
+                print("    respondido com o email de instrução")
 
           #Remove e-mail da Inbox
             mail.store(num, '+FLAGS', r'(\Deleted)')
@@ -103,14 +109,15 @@ def send_instruction_email(email_address):
         # initializing the server connection
         yag = yagmail.SMTP(user='resolucao52.2017@gmail.com', password='cpad2020')
 
-        conteudo_email = "Olá, \n Recebemos o seu e-mail mas ele não foi instruído com os arquivos que " \
-                        "precisamos para realizar a análise automatizada. Você precisa anexar: \n" \
-                        "a) Relatório de Progressão obtido no portal do docente ('ProgressaoDocente.pdf')\n" \
-                        "b) Ficha de qualificação funcional para progressão obtida no portal do servidor " \
+        conteudo_email = "Olá, \n  Seu e-mail foi recebido mas ele não está instruído com os arquivos que " \
+                        "é preciso para realizar a análise automatizada. São necessários: \n" \
+                        "   a) Relatório de Progressão obtido no portal do docente ('ProgressaoDocente.pdf')\n" \
+                        "   b) Ficha de qualificação funcional para progressão obtida no portal do servidor " \
                         "( 'ficha_qualificacao_progressao.pdf') \n" \
-                        "c)Arquivo XML do Currículo Lattes obtido na própria platafoma ('curriculo.xml') \n" \
-                        "Os nomes dos arquivos precisam ser exatamente como descritos acima. Para mais informações" \
-                        "em http://"
+                        "   c)Arquivo XML do Currículo Lattes obtido na própria platafoma ('curriculo.xml') \n" \
+                        "\n Atenção: os nomes dos arquivos precisam ser exatamente como descritos acima.  Mais informações" \
+                        " em http://   " \
+                         "\n Prof. Leandro Costalonga (CPAD/CEUNES/UFES)"
 
         # sending the email
         yag.send(to=email_address, subject="Ops..os anexos não foram reconhecidos", contents=conteudo_email)

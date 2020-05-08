@@ -14,6 +14,7 @@ from parecer52_2017.fichafuncional.ficha_funcional import FichaFuncional
 from parecer52_2017.portaldocente.iniciacao_cientifica import IniciacoesCientificas
 from parecer52_2017.portaldocente.acao_extensao import AcoesExtensao
 from parecer52_2017.common.shared_code import extrai_texto_pdf
+from parecer52_2017.config import settings
 
 
 class PortalDocente:
@@ -57,7 +58,7 @@ class PortalDocente:
 
          # self.filtro_periodo.append("2018/1") # Usando para overide manual no período de avaliacao.
 
-        self.disciplinas_grad = Disciplinas(self.__page_content, self.filtro_periodo, NivelEnsino.GRADUACAO)
+        self.disciplinas_grad = Disciplinas(self.__page_content, self.filtro_periodo, NivelEnsino.GRADUACAO, settings.remover_disciplinas_grad_duplicatas)
         self.disciplinas_posgrad = Disciplinas(self.__page_content, self.filtro_periodo, NivelEnsino.POSGRADUACAO)
 
     def __filtro_periodo(self, ficha_funcional):
