@@ -32,6 +32,10 @@ class Parecer:
 
 
     def __init__(self, portal_docente:PortalDocente, ficha_funcional: FichaFuncional, producao_intelectual : ProducaoIntelectual):
+
+        #Limpa os alertas preparando para o próximo parecer.
+        Alerta.lista_alertas.clear()
+
         self.portal_docente = portal_docente
         self.ficha_funcional = ficha_funcional
         self.producao_intelectual_lattes = producao_intelectual
@@ -78,7 +82,7 @@ class Parecer:
         if(self.__pontuacao_total() < 240):
             self.status_parecer = StatusParecer.INCONCLUSIVO
             Alerta.addAlerta("Importante: é necessário verificar outras produções do docente para atingir o mínimo de "
-                             "240 ponots.")
+                             "240 pontos.")
 
         self.__preencher_docx_anexo3()
         if (gravar_log):

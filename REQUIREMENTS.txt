@@ -8,3 +8,6 @@ PythonAnywhere:
    1) Add the following line (firs line) on mail_bot.py
       #!/home/llcostalonga/.virtualenvs/myvirtualenv/bin/python
    2) A pasta docs e resources devem fora do pacote, no mesmo nível do e-mail_bot.py
+
+   git remote add origin https://github.com/llcostalonga/Parecer_52.2017.git
+   https://github.com/llcostalonga/Parecer_52.2017.git
