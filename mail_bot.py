@@ -9,6 +9,9 @@ from parecer52_2017.parecer import Parecer
 
 import logging
 
+RECONNECTION_TIME = 600 # 3600 #segundos
+
+
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
 formatter = logging.Formatter('%(asctime)s:%(name)s:%(message)s')
@@ -21,18 +24,20 @@ def run_bot():
     imap_host = 'imap.gmail.com'
     imap_user = 'resolucao52.2017@gmail.com'
 
-    # init imap connection
-    mail = imaplib.IMAP4_SSL(imap_host, 993)
-    # rc, resp = mail.login(imap_user, getpass.getpass())
-    rc, resp = mail.login(imap_user, "cpad2020")
-
     running_time = 0
-    print(str(datetime.now()) + " E-mail bot has started...")
+    print(str(datetime.now()) + " Service started...")
     logger.info("Service started...")
     while 1:
-        if (running_time % 120): # 2 minutos
-            print(str(datetime.now()) + " still going...")
-            running_time = 0
+        if running_time==0:
+            # init imap connection
+            mail = imaplib.IMAP4_SSL(imap_host, 993)
+            # rc, resp = mail.login(imap_user, getpass.getpass())
+            rc, resp = mail.login(imap_user, "cpad2020")
+            logger.info(str(datetime.now()) + " login sucessfull ")
+            print(str(datetime.now()) + " login sucessfull ")
+
+        if running_time % 300 == 0: #5 minutos
+            print(str(datetime.now()) + " ...still running")
 
         # select only unread messages from inbox
         mail.select('Inbox')
@@ -71,8 +76,13 @@ def run_bot():
         time.sleep(60)
         running_time+=60
 
-    mail.close()
-    mail.logout()
+        if (running_time >= RECONNECTION_TIME):
+            mail.close()
+            mail.logout()
+            print(str(datetime.now()) + " ...logging out")
+            logger.info(str(datetime.now()) + " ...logging out")
+            running_time = 0
+
 
 def get_attachments(email_msg):
     attachments_names = []
