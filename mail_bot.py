@@ -1,5 +1,5 @@
 import imaplib, email, getpass, time
-import os, shutil
+import os, shutil, sys
 import yagmail
 from email import policy
 from datetime import datetime
@@ -9,7 +9,7 @@ from parecer52_2017.parecer import Parecer
 
 import logging
 
-RECONNECTION_TIME = 600 # 3600 #segundos
+RECONNECTION_TIME = 300 # 3600 #segundos
 
 
 logger = logging.getLogger(__name__)
@@ -25,64 +25,86 @@ def run_bot():
     imap_user = 'resolucao52.2017@gmail.com'
 
     running_time = 0
+    # init imap connection
+    mail = imaplib.IMAP4_SSL(imap_host, 993)
+    # rc, resp = mail.login(imap_user, getpass.getpass())
+    rc, resp = mail.login(imap_user, "cpad2020")
+    logger.info(str(datetime.now()) + " login sucessfull ")
+    print(str(datetime.now()) + " login sucessfull ")
+
     print(str(datetime.now()) + " Service started...")
     logger.info("Service started...")
     while 1:
-        if running_time==0:
-            # init imap connection
-            mail = imaplib.IMAP4_SSL(imap_host, 993)
-            # rc, resp = mail.login(imap_user, getpass.getpass())
-            rc, resp = mail.login(imap_user, "cpad2020")
-            logger.info(str(datetime.now()) + " login sucessfull ")
-            print(str(datetime.now()) + " login sucessfull ")
+        try:
+            # if running_time==0:
+            #     # rc, resp = mail.login(imap_user, getpass.getpass())
+            #     rc, resp = mail.login(imap_user, "cpad2020")
+            #     logger.info(str(datetime.now()) + " login sucessfull ")
+            #     print(str(datetime.now()) + " login sucessfull ")
 
-        if running_time % 300 == 0: #5 minutos
-            print(str(datetime.now()) + " ...still running")
+            if running_time % 300 == 0:
+                print(str(datetime.now()) + " ...still running")
 
-        # select only unread messages from inbox
-        mail.select('Inbox')
-        status, data = mail.search(None, '(UNSEEN)')
+            mailbox = 'Inbox'
+            try:
+                mail.select(mailbox)
+            except Exception as e:
+                print(e)
+                mail = login(mailbox)
 
-        # for each e-mail messages, print text content
-        for num in data[0].split():
-            # get a single message and parse it by policy.SMTP (RFC compliant)
-            status, data = mail.fetch(num, '(RFC822)')
-            email_msg = data[0][1]
-            email_msg = email.message_from_bytes(email_msg, policy=policy.SMTP)
-            return_email = str(email_msg['Return-Path'])[1:-1]
+            status, data = mail.search(None, '(UNSEEN)')
 
-            print("Processando email de  " + return_email)
+            # for each e-mail messages, print text content
+            for num in data[0].split():
 
-            attachments = get_attachments(email_msg)
-
-            if (len(attachments) > 0 and check_attachments(attachments)):
-                parecer = Parecer.run()
                 try:
-                    print("    anexos de acordo com o esperado")
-                    reply_email(return_email,email_msg, parecer)
-                    logger.info( "Respondido: " + str(email_msg['From']) + " anexos: " + str(attachments))
-                    delete_files()
-                    print("    e-mail respondido com o parecer")
-                except:
-                    print("    falha ao tentar responder o e-mail ")
-                    logger.info( "Falha da resposta: " + str(email_msg['From']) + " anexos: " + str(attachments))
-            else:
-                send_instruction_email(return_email)
-                print("    respondido com o email de instrução")
+                    # get a single message and parse it by policy.SMTP (RFC compliant)
+                    status, data = mail.fetch(num, '(RFC822)')
+                except Exception as e:
+                    print(e)
+                    mail = login(mailbox)
+                    status, data = mail.fetch(num, '(RFC822)')
 
-          #Remove e-mail da Inbox
-            mail.store(num, '+FLAGS', r'(\Deleted)')
 
-        time.sleep(60)
-        running_time+=60
+                email_msg = data[0][1]
+                email_msg = email.message_from_bytes(email_msg, policy=policy.SMTP)
+                return_email = str(email_msg['Return-Path'])[1:-1]
 
-        if (running_time >= RECONNECTION_TIME):
-            mail.close()
-            mail.logout()
-            print(str(datetime.now()) + " ...logging out")
-            logger.info(str(datetime.now()) + " ...logging out")
-            running_time = 0
+                print("Processando email de  " + return_email)
 
+                attachments = get_attachments(email_msg)
+
+                if (len(attachments) > 0 and check_attachments(attachments)):
+                    parecer = Parecer.run()
+                    try:
+                        print("    anexos de acordo com o esperado")
+                        reply_email(return_email,email_msg, parecer)
+                        logger.info( "Respondido: " + str(email_msg['From']) + " anexos: " + str(attachments))
+                        delete_files()
+                        print("    e-mail respondido com o parecer")
+                    except:
+                        print("    falha ao tentar responder o e-mail ")
+                        logger.info( "Falha da resposta: " + str(email_msg['From']) + " anexos: " + str(attachments))
+                else:
+                    send_instruction_email(return_email)
+                    print("    respondido com o email de instrução")
+
+              #Remove e-mail da Inbox
+                mail.store(num, '+FLAGS', r'(\Deleted)')
+
+            time.sleep(60)
+            running_time+=60
+        except:
+            print("Unexpected error:", sys.exc_info()[0])
+
+
+def login(mailbox):
+    mail = imaplib.IMAP4_SSL('imap.gmail.com', 993)
+    mail.login('resolucao52.2017@gmail.com','cpad2020')
+    logger.info(" logging in again.. sucessfull ")
+    print(str(datetime.now()) + " logging in again.. sucessfull ")
+    mail.select(mailbox)
+    return mail
 
 def get_attachments(email_msg):
     attachments_names = []
