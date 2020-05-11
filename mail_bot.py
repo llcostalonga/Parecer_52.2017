@@ -148,7 +148,7 @@ def send_instruction_email(email_address):
                         "( 'ficha_qualificacao_progressao.pdf') \n" \
                         "   c)Arquivo XML do Currículo Lattes obtido na própria platafoma ('curriculo.xml') \n" \
                         "\n Atenção: os nomes dos arquivos precisam ser exatamente como descritos acima.  Mais informações" \
-                        " em http://   " \
+                        " em http://http://tiny.cc/nd4voz  " \
                          "\n Prof. Leandro Costalonga (CPAD/CEUNES/UFES)"
 
         # sending the email
