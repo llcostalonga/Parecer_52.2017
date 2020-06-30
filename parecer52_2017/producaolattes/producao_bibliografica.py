@@ -118,7 +118,7 @@ class ProducaoBibliografica:
             ano = int(dados.attrib["ANO"])
 
             if((ano >= self.ano_inicial) and (ano < self.ano_final)):
-                titulo_trabalho = dados.attrib["TITULO-DO-CAPITULO-DO-LIVRO"]
+                titulo_trabalho = dados.attrib["TITULO-DO-LIVRO"]
                 pontos += 40  # Nacional ou internacional é a mesma pontuação
                 lista_trabalhos.append((titulo_trabalho,ano))
 

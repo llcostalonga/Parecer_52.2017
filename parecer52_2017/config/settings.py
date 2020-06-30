@@ -17,4 +17,4 @@ resources_folder = Path("resources/")
 file_parecer_aceleracao = resources_folder / "parecer_aceleracao.docx"
 file_parecer_anexoIII = resources_folder / "anexoIII.docx"
 
-remover_disciplinas_grad_duplicatas = True
+remover_disciplinas_grad_duplicatas = False
