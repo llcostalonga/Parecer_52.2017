@@ -62,26 +62,29 @@ class PortalDocente:
         self.disciplinas_posgrad = Disciplinas(self.__page_content, self.filtro_periodo, NivelEnsino.POSGRADUACAO)
 
     def __filtro_periodo(self, ficha_funcional):
-        inicio_intersticio = ficha_funcional.inicio_intersticio
-        fim_intersticio = ficha_funcional.inicio_intersticio
         filtro_periodo = []
-        total =0
-        ano = inicio_intersticio.year
-        if (inicio_intersticio.month < 6):
-            semestre = 1
-        elif (inicio_intersticio.month < 11):
-            semestre = 2
-        else:
-            semestre = 3
+        if (settings.calcular_filtro_periodo):
+            inicio_intersticio = ficha_funcional.inicio_intersticio
+            fim_intersticio = ficha_funcional.inicio_intersticio
+            total =0
+            ano = inicio_intersticio.year
+            if (inicio_intersticio.month < 6):
+                semestre = 1
+            elif (inicio_intersticio.month < 11):
+                semestre = 2
+            else:
+                semestre = 3
 
-        while (total < 6):
-            while semestre <= 3 and total <6:
-                periodo = str(ano) + "/" +str(semestre)
-                filtro_periodo.append(periodo)
-                semestre+=1
-                total+=1
-            ano+=1
-            semestre = 1
+            while (total < 6):
+                while semestre <= 3 and total <6:
+                    periodo = str(ano) + "/" +str(semestre)
+                    filtro_periodo.append(periodo)
+                    semestre+=1
+                    total+=1
+                ano+=1
+                semestre = 1
+        else:
+            filtro_periodo = settings.filtro_periodo_manual
         return filtro_periodo
 
 
