@@ -233,7 +233,7 @@ class Parecer:
         output+= "\n Documento gerado em: " + str(datetime.now())
         file_name = "Log - " + self.ficha_funcional.nome_servidor +" " +str(date.today()) + ".txt"
         file_path = settings.data_folder / file_name
-        f = open(file_path, "w")
+        f = open(file_path, "w", encoding='utf-8')
         f.write(output)
         f.close()
         self.lista_aquivos.append(file_path)
