@@ -53,6 +53,10 @@ class Disciplinas:
         sum_estagio_semidireto = 0
 
         for disciplina in disciplinas:
+
+            codigo_disciplina =  re.search(r'Código:(.*?)Período', disciplina).group(1)
+            if(codigo_disciplina.endswith("I")): #remove disciplinas canceladas de 2020/1 devido a pandemia COVID-19
+                continue
             nome_disciplina = re.search(r'(.*?)Código', disciplina).group(1)
             nome_disciplina= nome_disciplina.upper()
 
@@ -61,6 +65,8 @@ class Disciplinas:
             if (nome_disciplina in self.filtro_disciplina):  # remove as disciplinas de TCC (Art4,3)
                 Alerta.addAlerta("Disciplina removida (Art 4, §3): " + nome_disciplina)
                 continue  # @todo dúvida para CPAD
+
+
 
             if (periodo in self.filtro_periodo):
                 try:
