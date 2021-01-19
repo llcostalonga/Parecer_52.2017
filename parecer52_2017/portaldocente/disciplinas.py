@@ -39,8 +39,17 @@ class Disciplinas:
             self.lista_disciplinas = self.__busca_disciplinas_grad(remove_duplicatas)
 
         self.dic_encargo_didatico = self.__contagem_encargo_didatico()
+
+        self.media_encago_didatico = 0
+        if(self.dic_encargo_didatico):
+            self.media_encago_didatico = sum(self.dic_encargo_didatico.values()) / float(len(self.dic_encargo_didatico.values()))
+
         self.pontos_semestre = self.__calcula_pontuacao()
+        self.media_pontos = 0
+        if (self.pontos_semestre):
+            self.media_pontos = sum(self.pontos_semestre.values()) / float(len(self.pontos_semestre.values()))
         self.pontos = self.__soma_pontos_semestres()
+
 
 
     def __busca_disciplinas_grad(self, remove_duplicatas = True):
@@ -65,7 +74,6 @@ class Disciplinas:
             if (nome_disciplina in self.filtro_disciplina):  # remove as disciplinas de TCC (Art4,3)
                 Alerta.addAlerta("Disciplina removida (Art 4, §3): " + nome_disciplina)
                 continue  # @todo dúvida para CPAD
-
 
 
             if (periodo in self.filtro_periodo):
@@ -166,6 +174,7 @@ class Disciplinas:
 
         return lista_disciplinas
 
+
     def __contagem_encargo_didatico(self):
         dic_carga_horaria = dict()
         # dic_area1 = dict()
@@ -179,6 +188,7 @@ class Disciplinas:
             else:
                 dic_carga_horaria[periodo] = float(encargo_didatico)
         return dic_carga_horaria
+
 
     # No momento, está limitando a pontuação  120 por semestre (16) somando graduação e pós.
     # @todo CPAD isso deve ser reavaliado.

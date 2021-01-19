@@ -1,11 +1,7 @@
 
 
 import re
-import collections
-from datetime import datetime, timedelta, date
 import xml.etree.ElementTree as ET
-from pathlib import Path
-
 
 from parecer52_2017.portaldocente.disciplinas import Disciplinas, NivelEnsino
 from parecer52_2017.portaldocente.orientacoes import Orientacoes
@@ -66,7 +62,7 @@ class PortalDocente:
         if (settings.calcular_filtro_periodo):
             inicio_intersticio = ficha_funcional.inicio_intersticio
             fim_intersticio = ficha_funcional.inicio_intersticio
-            total =0
+            total = 0
             ano = inicio_intersticio.year
             if (inicio_intersticio.month < 6):
                 semestre = 1

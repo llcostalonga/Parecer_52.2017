@@ -153,9 +153,16 @@ class Parecer:
                                 "\n      Verificar se o servidor ocupava cargo administrativo ou encontrava-se afastado em " + str(k))
                 self.status_parecer = StatusParecer.INCONCLUSIVO
 
-        # Verifica a pontuação mínima de 160 pontos  (Art. 37, § 1)
         total_pontos_ensino = portal_docente.disciplinas_grad.pontos + portal_docente.disciplinas_posgrad.pontos
+        if(settings.aplicar_art52):
+            fator_mult_media = 4 - settings.periodos_concluido_art52 # 4 periodos são previstos para chegar nos 160 pontos.
+            total_pontos_ensino += (portal_docente.disciplinas_grad.media_pontos + portal_docente.disciplinas_posgrad.media_pontos) * fator_mult_media
 
+            Alerta.addAlerta("Importante: Art. 52 aplicado. A pontuação da Área 1 é a média dos semestres concluídos indicados "
+                             "manualmente no filtro de configurações do sistema.")
+
+
+        # Verifica a pontuação mínima de 160 pontos  (Art. 37, § 1
         if(total_pontos_ensino < 160):
             Alerta.addAlerta("Importante: não foi atingido o mínimo de 160 pontos no interstício para a área de ensino. (Art. 37, §1) "
                              "\n      Verifique se o servidor ocupava cargo administrativo ou encontrava-se ou estava "
@@ -163,6 +170,8 @@ class Parecer:
             self.status_parecer = StatusParecer.INCONCLUSIVO
 
         return total_pontos_ensino
+
+
 
     def __get_detalhamento(self):
         output = self.__str__()  # resultado do parecer
@@ -172,19 +181,25 @@ class Parecer:
         output += formataPrint("", "Disciplinas da Graduação (Semestre, Código, Disciplina, Encargo didático)",
                                self.portal_docente.disciplinas_grad.lista_disciplinas) + "\n"
 
-        output += (formataPrint("", "Encargo didático Graduação",
+        output += (formataPrint("", "Encargo didático Graduação (média: " +
+                                str(self.portal_docente.disciplinas_grad.media_encago_didatico) + ")",
                                 self.portal_docente.disciplinas_grad.dic_encargo_didatico.items())) + "\n"
 
-        output += (formataPrint("", "Pontuação Graduação :",
+        output += (formataPrint("", "Pontuação Graduação (média: " +
+                                str(self.portal_docente.disciplinas_grad.media_pontos) + ")",
                                 self.portal_docente.disciplinas_grad.pontos_semestre.items())) + "\n"
+
 
         output += "===== 2. Turmas de Pós-Graduação =====" "\n"
         output += (formataPrint("", "Disciplinas da Pós-graduação (Semestre, Código, Disciplina, Encargo didático)",
                                 self.portal_docente.disciplinas_posgrad.lista_disciplinas)) + "\n"
-        output += (formataPrint("", "Encargo didático Pós-Graduação",
+        output += (formataPrint("", "Encargo didático Pós-Graduação(média: " +
+                                str(self.portal_docente.disciplinas_posgrad.media_encago_didatico) + ")",
                                 self.portal_docente.disciplinas_posgrad.dic_encargo_didatico.items())) + "\n"
-        output += (formataPrint("", "Pontuação Pós-graduação :",
+        output += (formataPrint("", "Pontuação Pós-graduação (média: " +
+                                str(self.portal_docente.disciplinas_posgrad.media_pontos) + ")",
                                 self.portal_docente.disciplinas_posgrad.pontos_semestre.items())) + "\n"
+
 
         output += "===== 3. Iniciações Científicas =====" "\n"
         output += formataPrint("", "Iniciações Científica (Título, Data Início, Data Término)",

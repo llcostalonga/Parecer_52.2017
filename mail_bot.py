@@ -1,4 +1,4 @@
-import imaplib, email, getpass, time
+import imaplib, email, time
 import os, shutil, sys
 import yagmail
 from email import policy
