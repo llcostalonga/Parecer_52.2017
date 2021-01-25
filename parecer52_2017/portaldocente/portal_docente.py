@@ -61,7 +61,7 @@ class PortalDocente:
         filtro_periodo = []
         if (settings.calcular_filtro_periodo):
             inicio_intersticio = ficha_funcional.inicio_intersticio
-            fim_intersticio = ficha_funcional.inicio_intersticio
+            fim_intersticio = ficha_funcional.fim_intersticio
             total = 0
             ano = inicio_intersticio.year
             if (inicio_intersticio.month < 6):
