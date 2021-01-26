@@ -9,22 +9,25 @@ class NivelEnsino(Enum):
 
 class Disciplinas:
     # @todo remover TCC e Estagio
-    filtro_disciplina = ["DCE11947 - Trabalho de Conclusão de Curso I",  # C. da Computação
-                         "DCE11949 - Trabalho de Conclusão de Curso II",  # C. da. Comp.
-                         "DCE08352 - Projeto de Graduação I",  # Eng. da Comp.
-                         "DCE08355 - Projeto de Graduação II",  # Eng. da Comp.
-                         "ECH12751 - Trabalho de Conclusão de Curso (TCC)",  # Pedagogia
+    # Cadastra sempre em maiusculo
+    filtro_disciplina = ["DCE11947 - TRABALHO DE CONCLUSÃO DE CURSO I",  # C. DA COMPUTAÇÃO
+                         "DCE11949 - TRABALHO DE CONCLUSÃO DE CURSO II",  # C. DA. COMP.
+                         "DCE08352 - PROJETO DE GRADUAÇÃO I",  # ENG. DA COMP.
+                         "DCE08355 - PROJETO DE GRADUAÇÃO II",  # ENG. DA COMP.
+                         "ECH12751 - TRABALHO DE CONCLUSÃO DE CURSO (TCC)",  # PEDAGOGIA
                          ]
 
-    # Max 4 horas semanais (Art. 35)
-    filtro_estagio_direta = ["DCS07308 - Estágio Curricular I"]
+
 
     # Max 4 horas semanais (Art. 35)
-    filtro_estagio_semidireta = ["ECH12748 - Estágio Sup em gestão escolar"]  # ? Pedagogia?
+    filtro_estagio_direta = ["DCS07308 - ESTÁGIO CURRICULAR I"]
+
+    # Max 4 horas semanais (Art. 35)
+    filtro_estagio_semidireta = ["ECH12748 - ESTÁGIO SUP EM GESTÃO ESCOLAR"] # ? Pedagogia?
 
     # Max 1 hora semanal (Art. 35)
-    filtro_estagio_indireta = ["DCE11948 - Estágio Supervisionado",  # C. Comp DCE11948 - Estágio Supervisionado
-                               "DCE08169 - Estágio Supervisionado"]  # Eng. Comp
+    filtro_estagio_indireta = ["DCE11948 - ESTÁGIO SUPERVISIONADO",  # C. COMP DCE11948 - ESTÁGIO SUPERVISIONADO
+                               "DCE08169 - ESTÁGIO SUPERVISIONADO"]  # ENG. COMP
 
     def __init__(self, texto_relatorio_progressao, filtro_periodo, nivel_ensino:NivelEnsino = NivelEnsino.GRADUACAO, remove_duplicatas = True):
         # A ordem das chamadas das funções ´ relevante. Não mudar sem a devida verificação.
@@ -50,11 +53,10 @@ class Disciplinas:
             self.media_pontos = sum(self.pontos_semestre.values()) / float(len(self.pontos_semestre.values()))
         self.pontos = self.__soma_pontos_semestres()
 
-
-
-    def __busca_disciplinas_grad(self, remove_duplicatas = True):
+    def __busca_disciplinas_grad(self, remove_duplicatas=True):
         # Extraindo do texto os dados sobre as disciplinas
-        disciplinas = re.findall(r'Disciplina:(.*?)Vagas ocupadas:', self.page_content)
+        # disciplinas = re.findall(r'Disciplina:(.*?)Vagas ocupadas:', self.page_content)
+        disciplinas = re.split(r'Disciplina:', self.page_content)
         lista_disciplinas = list()
 
         # somatório disciplinas de estágio
@@ -62,19 +64,27 @@ class Disciplinas:
         sum_estagio_semidireto = 0
 
         for disciplina in disciplinas:
+            if (disciplina == ''):
+                continue;
 
-            codigo_disciplina =  re.search(r'Código:(.*?)Período', disciplina).group(1)
-            if(codigo_disciplina.endswith("I")): #remove disciplinas canceladas de 2020/1 devido a pandemia COVID-19
-                continue
+            codigo_disciplina = re.search(r'Código:(.*?)Período', disciplina).group(1)
+
             nome_disciplina = re.search(r'(.*?)Código', disciplina).group(1)
-            nome_disciplina= nome_disciplina.upper()
+            nome_disciplina = nome_disciplina.upper()
 
             periodo = re.search(r'Período:(.*?)Curso', disciplina).group(1)
+            # remove disciplinas canceladas de 2020/1 devido a pandemia COVID-19. @todo Testar como fica isso com
+            # disciplina da matemática industrial.
+            if (codigo_disciplina.endswith("I") and periodo == "2020/1"):
+                continue
+
+            vagas_ocupadas = float(re.search(r'Vagas ocupadas:(\d+)', disciplina).group(1))
+            if (vagas_ocupadas == 0):
+                continue  # não conta disciplinas que não tem nenhum aluno matriculado.
 
             if (nome_disciplina in self.filtro_disciplina):  # remove as disciplinas de TCC (Art4,3)
                 Alerta.addAlerta("Disciplina removida (Art 4, §3): " + nome_disciplina)
                 continue  # @todo dúvida para CPAD
-
 
             if (periodo in self.filtro_periodo):
                 try:
@@ -116,24 +126,22 @@ class Disciplinas:
                 Alerta.addAlerta(
                     "INFORMAÇÃO NECESSÁRIA: " + nome_disciplina + "(" + periodo + "): possívelmente pontuada erroneamente como orientação direta.")
 
-
             retorno_busca = [(x, y, z) for x, y, z in lista_disciplinas if ((x == periodo) and (y == nome_disciplina))]
 
-            if(len(retorno_busca) > 0):
+            if (len(retorno_busca) > 0):
                 if (remove_duplicatas):
                     Alerta.addAlerta(
                         "Atenção: a disciplina " + nome_disciplina + " aparece  duplicada  no semestre " + periodo +
                         "\n      e NÃO FOI computada (Obs. 4 Anexo I). Solicitar a chefia a documentação comprobatória de que"
                         "\n      a disciplina foi ministrada em turmas com horários diferentes e, se comprovado, SOMAR "
-                        "n      " + str(encargo_didatico) + " de encargo didático no semestre." )
+                        "n      " + str(encargo_didatico) + " de encargo didático no semestre.")
                     continue
                 else:
                     Alerta.addAlerta(
                         "Atenção: a disciplina " + nome_disciplina + " aparece  duplicada  no semestre " + periodo +
                         "\n      e mas FOI computada (Obs. 4 Anexo I). Solicitar a chefia documentação que realmente comprove"
                         "\n      que a disciplina foi ministrada em turmas com horários diferentes e, se for o caso, REMOVER "
-                        "\n      " + str(encargo_didatico) + " de encargo didático no semestre." )
-
+                        "\n      " + str(encargo_didatico) + " de encargo didático no semestre.")
 
             tupletDisciplina = (periodo, nome_disciplina, encargo_didatico)
             lista_disciplinas.append(tupletDisciplina)

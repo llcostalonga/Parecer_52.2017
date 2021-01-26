@@ -3,6 +3,9 @@ from parecer52_2017.fichafuncional.ficha_funcional import FichaFuncional
 from parecer52_2017.common.shared_code import Alerta
 import xml.etree.ElementTree as ET
 
+#from parecer52_2017.producaolattes.producao_intelectual import ProducaoIntelectual
+
+
 class ProducaoBibliografica:
 
     def __init__(self,  xml_lattes, ano_incial, ano_final):
