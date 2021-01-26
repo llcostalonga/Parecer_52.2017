@@ -9,22 +9,25 @@ class NivelEnsino(Enum):
 
 class Disciplinas:
     # @todo remover TCC e Estagio
-    filtro_disciplina = ["DCE11947 - Trabalho de Conclusão de Curso I",  # C. da Computação
-                         "DCE11949 - Trabalho de Conclusão de Curso II",  # C. da. Comp.
-                         "DCE08352 - Projeto de Graduação I",  # Eng. da Comp.
-                         "DCE08355 - Projeto de Graduação II",  # Eng. da Comp.
-                         "ECH12751 - Trabalho de Conclusão de Curso (TCC)",  # Pedagogia
+    # Cadastra sempre em maiusculo
+    filtro_disciplina = ["DCE11947 - TRABALHO DE CONCLUSÃO DE CURSO I",  # C. DA COMPUTAÇÃO
+                         "DCE11949 - TRABALHO DE CONCLUSÃO DE CURSO II",  # C. DA. COMP.
+                         "DCE08352 - PROJETO DE GRADUAÇÃO I",  # ENG. DA COMP.
+                         "DCE08355 - PROJETO DE GRADUAÇÃO II",  # ENG. DA COMP.
+                         "ECH12751 - TRABALHO DE CONCLUSÃO DE CURSO (TCC)",  # PEDAGOGIA
                          ]
 
-    # Max 4 horas semanais (Art. 35)
-    filtro_estagio_direta = ["DCS07308 - Estágio Curricular I"]
+
 
     # Max 4 horas semanais (Art. 35)
-    filtro_estagio_semidireta = ["ECH12748 - Estágio Sup em gestão escolar"]  # ? Pedagogia?
+    filtro_estagio_direta = ["DCS07308 - ESTÁGIO CURRICULAR I"]
+
+    # Max 4 horas semanais (Art. 35)
+    filtro_estagio_semidireta = ["ECH12748 - ESTÁGIO SUP EM GESTÃO ESCOLAR"] # ? Pedagogia?
 
     # Max 1 hora semanal (Art. 35)
-    filtro_estagio_indireta = ["DCE11948 - Estágio Supervisionado",  # C. Comp DCE11948 - Estágio Supervisionado
-                               "DCE08169 - Estágio Supervisionado"]  # Eng. Comp
+    filtro_estagio_indireta = ["DCE11948 - ESTÁGIO SUPERVISIONADO",  # C. COMP DCE11948 - ESTÁGIO SUPERVISIONADO
+                               "DCE08169 - ESTÁGIO SUPERVISIONADO"]  # ENG. COMP
 
     def __init__(self, texto_relatorio_progressao, filtro_periodo, nivel_ensino:NivelEnsino = NivelEnsino.GRADUACAO, remove_duplicatas = True):
         # A ordem das chamadas das funções ´ relevante. Não mudar sem a devida verificação.
